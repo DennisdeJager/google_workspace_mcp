@@ -1,16 +1,35 @@
+version: "3.9"
+
 services:
-  gws_mcp:
+  workspace-mcp:
     build: .
-    container_name: gws_mcp
+    container_name: workspace-mcp
+    restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - GOOGLE_MCP_CREDENTIALS_DIR=/app/store_creds
-    volumes:
-      - ./client_secret.json:/app/client_secret.json:ro
-      - store_creds:/app/store_creds:rw
-    env_file:
-      - .env
 
-volumes:
-  store_creds:
+    environment:
+      MCP_ENABLE_OAUTH21: "true"
+      MCP_OAUTH21_ENABLED: "true"
+      OAUTH21_ENABLED: "true"
+      SERVER_EXTERNAL_BASE_URL: "https://mcp-gworkspace.uitgezocht.com"
+
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
+      GOOGLE_OAUTH_REDIRECT_URI: "https://mcp-gworkspace.uitgezocht.com/oauth2callback"
+
+      WORKSPACE_EXTERNAL_URL: "https://mcp-gworkspace.uitgezocht.com"
+      TELEMETRY_ENABLED: "false"
+      TOOL_TIER: "core"
+      TOOLS: "gmail drive calendar"
+
+      GOOGLE_MCP_CREDENTIALS_DIR: "/data/credentials"
+
+    volumes:
+      - ./data:/data
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
